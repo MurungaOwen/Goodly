@@ -10,6 +10,7 @@ export default defineConfig({
     },
   },
   server: {
-    port: 8080 // Railway default port
+    port: 8080,// Railway default port
+    host: "0.0.0.0"
   }
 })
