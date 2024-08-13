@@ -1,6 +1,8 @@
 // src/components/Navbar.js
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { SignedIn, SignedOut, UserButton } from "@clerk/clerk-react";
+import SignUpButton from './SignupBtn';
 
 function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -38,11 +40,13 @@ function Navbar() {
             <Link 
               to="/events" 
               className="hidden md:block hover:text-orange-400">Volunteer</Link>
-            <Link 
-              to="/signup" 
-              className="bg-orange-400 hidden md:block text-white p-2 rounded cursor-pointer hover:bg-orange-300">
-              Signup
-            </Link>
+              <SignedOut>
+                  <SignUpButton />
+              </SignedOut>
+               
+              <SignedIn>
+                <UserButton />
+              </SignedIn>
           </div>
 
           {/* Mobile Menu Button */}
@@ -70,11 +74,15 @@ function Navbar() {
             <Link 
               to="/" 
               className="block text-white hover:text-orange-400">Volunteer</Link>
-            <Link 
-              to="/" 
-              className="block bg-orange-400 text-white w-fit p-2 rounded cursor-pointer hover:bg-orange-300">
-              Signup
-            </Link>
+
+            <SignedOut>
+              <SignUpButton />
+            </SignedOut>
+
+            <SignedIn>
+              <UserButton />
+            </SignedIn>
+
           </div>
         </div>
       </div>
