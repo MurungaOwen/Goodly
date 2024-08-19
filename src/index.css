@@ -1,4 +1,10 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+.toast-success {
+    @apply bg-green-500 text-white; /* Tailwind classes for success */
+  }
   
+  .toast-error {
+    @apply bg-red-500 text-white; /* Tailwind classes for error */
+  }

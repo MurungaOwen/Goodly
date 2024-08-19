@@ -6,11 +6,20 @@ import {
   } from "@/components/ui/accordion"
 import {useState} from "react"
 import { faq, partners } from "@/(Utils)/data";
-  
+import { sendMessage } from "@/(Api)/sendMessage";
+import "./loader.css"
+import { useToast } from "@/components/ui/use-toast"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 
 
 
 export default function PartnersSection() {
+
+    const [loading, setLoading] = useState(false);
     const [contactData, setContactData] = useState({
         "name": "",
         "email": "",
@@ -25,12 +34,38 @@ export default function PartnersSection() {
           [name]: value
         });
       };
-    
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+      
+      const { toast } = useToast()
+      const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        // Handle form submission logic here
-        console.log('Form data submitted:', contactData);
-      };
+        setLoading(true);
+    
+        try {
+            // Assuming sendMessage takes contactData and sends it
+            await sendMessage(contactData);
+            toast({
+                title: "Success",
+                description: "Your message has been sent successfully",
+              })
+            // Clear the form data
+            setContactData({
+                name: "",
+                email: "",
+                subject: "",
+                message: ""
+            });
+            
+            console.log("Message sent", contactData);
+        } catch (error) {
+            toast({
+                title: "Error",
+                description: "Your message was not send kindly retry",
+              })
+            console.log("Error occurred", error);
+        } finally {
+            setLoading(false);
+        }
+    };
     return (
         <>
             <section className="bg-gray-100 py-8">
@@ -67,16 +102,87 @@ export default function PartnersSection() {
                         We'd love to hear from you! Whether you have a question about our services, want to get involved, or need assistance, feel free to reach out.
                         </p>
                         <div className="mb-4">
-                        <p className="font-semibold">Email:</p>
-                        <a href="mailto:info@example.com" className="text-blue-500 hover:underline">info@example.com</a>
-                        </div>
-                        <div className="mb-4">
-                        <p className="font-semibold">Phone:</p>
-                        <p className="text-gray-700">+123-456-7890</p>
-                        </div>
-                        <div className="mb-4">
-                        <p className="font-semibold">Address:</p>
-                        <p className="text-gray-700">1234 Example Street, City, Country</p>
+                            <p className="font-semibold">Email:</p>
+                            <a href="mailto:info@example.com" className="text-blue-500 hover:underline">info@Goodly.org</a>
+                            </div>
+                            <div className="mb-4">
+                            <p className="font-semibold">Phone:</p>
+                            <p className="text-gray-700">+254114884211</p>
+                            </div>
+                            <div className="mb-4">
+                            <p className="font-semibold">Address:</p>
+                            <p className="text-gray-700">Kisumu, Kenya</p>
+
+                            <Popover>
+                                <PopoverTrigger><div className="mt-5 text-xl bg-orange-500 text-white p-2">Message us</div></PopoverTrigger>
+                                <div className="hidden lg:block">
+                                <PopoverContent>
+                                {loading ? <div className="loader mx-auto justify-center"></div> : 
+                                    <form onSubmit={handleSubmit} className="max-w-lg hidden lg:block w-full">
+                                    <div className="mb-5">
+                                        <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900">Your Name</label>
+                                        <input
+                                        type="text"
+                                        id="name"
+                                        name="name"
+                                        value={contactData.name}
+                                        onChange={handleChange}
+                                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                        placeholder="John Doe"
+                                        required
+                                        />
+                                    </div>
+                                    <div className="mb-5">
+                                        <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-900">Your Email</label>
+                                        <input
+                                        type="email"
+                                        id="email"
+                                        name="email"
+                                        value={contactData.email}
+                                        onChange={handleChange}
+                                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                        placeholder="name@example.com"
+                                        required
+                                        />
+                                    </div>
+                                    <div className="mb-5">
+                                        <label htmlFor="subject" className="block mb-2 text-sm font-medium text-gray-900">Subject</label>
+                                        <input
+                                        type="text"
+                                        id="subject"
+                                        name="subject"
+                                        value={contactData.subject}
+                                        onChange={handleChange}
+                                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                        placeholder="Subject of your message"
+                                        required
+                                        />
+                                    </div>
+                                    <div className="mb-5">
+                                        <label htmlFor="message" className="block mb-2 text-sm font-medium text-gray-900">Message</label>
+                                        <textarea
+                                        id="message"
+                                        name="message"
+                                        value={contactData.message}
+                                        onChange={handleChange}
+                                        rows={4}
+                                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                        placeholder="Your message here..."
+                                        required
+                                        />
+                                    </div>
+                                    <button
+                                        type="submit"
+                                        className="mb-3 text-white bg-orange-500 hover:text-black hover:bg-orange-300 focus:ring-4 focus:outline-none focus:ring-orange-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center"
+                                    >
+                                        Send Message
+                                    </button>
+                                    </form>
+                                }
+                                </PopoverContent>
+                                </div>
+
+                            </Popover>
                         </div>
                     </div>
                     </div>
@@ -87,66 +193,70 @@ export default function PartnersSection() {
             <section className="py-16 block lg:hidden mt-5" data-aos="fade-right" data-aos-offset="100">
                 <div className="container mx-auto px-4">
                     <h2 className="text-3xl font-bold text-center mb-8">Contact Us</h2>
-                    <form onSubmit={handleSubmit} className="max-w-lg mx-auto bg-white p-6 rounded-lg shadow-md">
-                    <div className="mb-5">
-                        <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900">Your Name</label>
-                        <input
-                        type="text"
-                        id="name"
-                        name="name"
-                        value={contactData.name}
-                        onChange={handleChange}
-                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                        placeholder="John Doe"
-                        required
-                        />
-                    </div>
-                    <div className="mb-5">
-                        <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-900">Your Email</label>
-                        <input
-                        type="email"
-                        id="email"
-                        name="email"
-                        value={contactData.email}
-                        onChange={handleChange}
-                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                        placeholder="name@example.com"
-                        required
-                        />
-                    </div>
-                    <div className="mb-5">
-                        <label htmlFor="subject" className="block mb-2 text-sm font-medium text-gray-900">Subject</label>
-                        <input
-                        type="text"
-                        id="subject"
-                        name="subject"
-                        value={contactData.subject}
-                        onChange={handleChange}
-                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                        placeholder="Subject of your message"
-                        required
-                        />
-                    </div>
-                    <div className="mb-5">
-                        <label htmlFor="message" className="block mb-2 text-sm font-medium text-gray-900">Message</label>
-                        <textarea
-                        id="message"
-                        name="message"
-                        value={contactData.message}
-                        onChange={handleChange}
-                        rows={4}
-                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                        placeholder="Your message here..."
-                        required
-                        />
-                    </div>
-                    <button
-                        type="submit"
-                        className="text-white bg-orange-500 hover:text-black hover:bg-orange-300 focus:ring-4 focus:outline-none focus:ring-orange-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center"
-                    >
-                        Send Message
-                    </button>
-                    </form>
+
+                    {loading ? <div className="loader mx-auto justify-center"></div> : 
+                        <form onSubmit={handleSubmit} className="max-w-lg mx-auto bg-white p-6 rounded-lg shadow-md">
+                        <div className="mb-5">
+                            <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900">Your Name</label>
+                            <input
+                            type="text"
+                            id="name"
+                            name="name"
+                            value={contactData.name}
+                            onChange={handleChange}
+                            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                            placeholder="John Doe"
+                            required
+                            />
+                        </div>
+                        <div className="mb-5">
+                            <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-900">Your Email</label>
+                            <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            value={contactData.email}
+                            onChange={handleChange}
+                            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                            placeholder="name@example.com"
+                            required
+                            />
+                        </div>
+                        <div className="mb-5">
+                            <label htmlFor="subject" className="block mb-2 text-sm font-medium text-gray-900">Subject</label>
+                            <input
+                            type="text"
+                            id="subject"
+                            name="subject"
+                            value={contactData.subject}
+                            onChange={handleChange}
+                            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                            placeholder="Subject of your message"
+                            required
+                            />
+                        </div>
+                        <div className="mb-5">
+                            <label htmlFor="message" className="block mb-2 text-sm font-medium text-gray-900">Message</label>
+                            <textarea
+                            id="message"
+                            name="message"
+                            value={contactData.message}
+                            onChange={handleChange}
+                            rows={4}
+                            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                            placeholder="Your message here..."
+                            required
+                            />
+                        </div>
+                        <button
+                            type="submit"
+                            className="text-white bg-orange-500 hover:text-black hover:bg-orange-300 focus:ring-4 focus:outline-none focus:ring-orange-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center"
+                        >
+                            Send Message
+                        </button>
+                        </form>
+                    }
+                    
                 </div>
             </section>
             <div className="py-10 justify-center" data-aos="fade-right" data-aos-offset="200" data-aos-easing="ease-in-sine">

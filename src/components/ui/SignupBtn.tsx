@@ -1,4 +1,3 @@
-// SignUpButton.tsx
 import React from 'react';
 import { useClerk } from '@clerk/clerk-react';
 
