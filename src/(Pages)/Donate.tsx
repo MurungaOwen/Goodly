@@ -7,11 +7,63 @@ import {
     CarouselNext,
     CarouselPrevious,
   } from "@/components/ui/carousel"
+import { donateApi } from "@/(Api)/donate"
+import { useToast } from "@/components/ui/use-toast"
+import { useState } from "react"
 import { testimonials } from "@/(Utils)/data"
+
+
 export default function Donation(){
+
+    const [loading, setLoading] = useState(false);
+    const [donationData, setdonationData] = useState({
+        "name": "",
+        "amount": 1,
+        "cause": "",
+        "phone": ""
+    });
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const { name, value } = e.target;
+        setdonationData({
+          ...donationData,
+          [name]: value
+        });
+      };
+      
+      const { toast } = useToast()
+      const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        setLoading(true);
+    
+        try {
+            const response = await donateApi(donationData);
+            toast({
+                title: "Success",
+                description: response.message,
+              })
+            // Clear the form data
+            setdonationData({
+                name: "",
+                amount: 0,
+                cause: "",
+                phone: ""
+            });
+            
+            console.log("Message sent", donationData);
+        } catch (error) {
+            toast({
+                title: "Error",
+                description: "Payment wasn't successful kindly retry",
+              })
+            console.log("Error occurred", error);
+        } finally {
+            setLoading(false);
+        }
+    };
     return (
         <>
-        <section className="bg-gary-200 py-16">
+        <section className="bg-gray-200 py-16">
             <div className="container mx-auto px-4 text-center">
                 <h1 className="text-4xl md:text-5xl font-bold mb-4">Make a Difference Today</h1>
                 <p className="text-lg mb-8">Your donation helps support street children and orphans. Every contribution counts.</p>
@@ -52,27 +104,34 @@ export default function Donation(){
                         />
                     </div>
                     {/* Donation Form Section */}
-                    <div className="md:w-1/2 flex items-stretch" data-aos="fade-right" data-aos-offset="100">
-                        <form className="w-full bg-white p-8 shadow-lg flex flex-col justify-between">
-                            <div className="mb-4">
-                                <label htmlFor="name" className="block text-sm font-medium text-gray-700">Name</label>
-                                <input type="text" id="name" className="w-full p-2 border border-gray-300 rounded-lg" placeholder="John Doe" required />
-                            </div>
-                            <div className="mb-4">
-                                <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
-                                <input type="email" id="email" className="w-full p-2 border border-gray-300 rounded-lg" placeholder="name@example.com" required />
-                            </div>
-                            <div className="mb-4">
-                                <label htmlFor="amount" className="block text-sm font-medium text-gray-700">Donation Amount</label>
-                                <input type="number" id="amount" className="w-full p-2 border border-gray-300 rounded-lg" placeholder="Amount in USD" required />
-                            </div>
-                            <div className="mb-4">
-                                <label htmlFor="message" className="block text-sm font-medium text-gray-700">Message (Optional)</label>
-                                <textarea id="message" className="w-full p-2 border border-gray-300 rounded-lg" placeholder="Your message here..."></textarea>
-                            </div>
-                            <button type="submit" className="w-full bg-orange-300 text-white py-3 rounded-lg font-semibold hover:bg-orange-500 transition">Donate Now</button>
-                        </form>
-                    </div>
+                        <div className="md:w-1/2 flex items-stretch" data-aos="fade-right" data-aos-offset="100">
+                        {
+                            loading ? <div className="loader mx-auto justify-center"></div> :
+                            <form className="w-full bg-white p-8 shadow-lg flex flex-col justify-between" onSubmit={handleSubmit}>
+                                <div className="mb-4">
+                                    <label htmlFor="name"  className="block text-sm font-medium text-gray-700">Name</label>
+                                    <input type="text" id="name" name="name" value={donationData.name} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-lg" placeholder="John Doe" required />
+                                </div>
+                                
+                                <div className="mb-4">
+                                    <label htmlFor="phone number" className="block text-sm font-medium text-gray-700">Mpesa number</label>
+                                    <input type="text" id="phone" name="phone" value={donationData.phone} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-lg" placeholder="+254 1234567" required />
+                                </div>
+
+                                <div className="mb-4">
+                                    <label htmlFor="amount" className="block text-sm font-medium text-gray-700">Amount</label>
+                                    <input type="number" id="amount" name="amount" value={donationData.amount} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-lg" placeholder="+254 1234567" required />
+                                </div>
+
+                                <div className="mb-4">
+                                    <label htmlFor="cause" className="block text-sm font-medium text-gray-700">Donating for</label>
+                                    <textarea id="cause" name="cause" value={donationData.cause} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-lg" placeholder="what you are donating for.."></textarea>
+                                </div>
+                                <button type="submit" className="w-full bg-orange-300 text-white py-3 rounded-lg font-semibold hover:bg-orange-500 transition">Donate Now</button>
+                            </form>
+                        }
+                            
+                        </div>
                 </div>
             </div>
         </section>
